@@ -7,7 +7,7 @@ import com.sun.jna.Pointer;
 import unicorn.Arm64Const;
 import unicorn.ArmConst;
 
-public class FutexIndefinitelyWaiter extends FutexWaiter {
+public class FutexIndefinitelyWaiter extends AbstractFutexWaiter {
 
     public FutexIndefinitelyWaiter(Pointer uaddr, int val) {
         super(uaddr, val);

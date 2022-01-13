@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * <p>Unix系统信号集</p>
+ *
+ * @author pu_chaobo@163.com
+ * @date 2022-01-05 14:42:58
+ */
 public class UnixSigSet implements SigSet {
 
     private long mask;
@@ -70,12 +76,14 @@ public class UnixSigSet implements SigSet {
             }
             return false;
         }
+
         @Override
         public Integer next() {
             bit = nextBit;
             this.mask &= ~(1L << bit);
             return bit + 1;
         }
+
         @Override
         public void remove() {
             UnixSigSet.this.mask &= ~(1L << bit);
@@ -95,5 +103,4 @@ public class UnixSigSet implements SigSet {
         }
         return list.toString();
     }
-
 }

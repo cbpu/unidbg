@@ -5,12 +5,19 @@ import com.sun.jna.Pointer;
 import unicorn.Arm64Const;
 import unicorn.ArmConst;
 
-public abstract class FutexWaiter extends AndroidWaiter {
+/**
+ * <p>Futex进程等待器</p>
+ *
+ * @author pu_chaobo@163.com
+ * @date 2022-01-06 10:59:21
+ * @see <a href="https://zh.wikipedia.org/wiki/Futex">Futex</a>
+ */
+public abstract class AbstractFutexWaiter extends AbstractAndroidWaiter {
 
     private final Pointer uaddr;
     private final int val;
 
-    public FutexWaiter(Pointer uaddr, int val) {
+    public AbstractFutexWaiter(Pointer uaddr, int val) {
         this.uaddr = uaddr;
         this.val = val;
     }

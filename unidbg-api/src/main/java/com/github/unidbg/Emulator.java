@@ -13,11 +13,7 @@ import com.github.unidbg.listener.TraceWriteListener;
 import com.github.unidbg.memory.Memory;
 import com.github.unidbg.memory.SvcMemory;
 import com.github.unidbg.serialize.Serializable;
-import com.github.unidbg.spi.ArmDisassembler;
-import com.github.unidbg.spi.Dlfcn;
-import com.github.unidbg.spi.LibraryFile;
-import com.github.unidbg.spi.SyscallHandler;
-import com.github.unidbg.spi.ValuePair;
+import com.github.unidbg.spi.*;
 import com.github.unidbg.thread.ThreadDispatcher;
 import com.github.unidbg.unwind.Unwinder;
 
@@ -28,39 +24,155 @@ import java.net.URL;
 /**
  * cpu emulator
  * Created by zhkl0228 on 2017/5/2.
+ *
+ * <p>模拟器接口</p>
+ *
+ * @param <T>
+ * @author pu_chaobo@163.com
+ * @date 2021-12-30 12:24:06
  */
-
 public interface Emulator<T extends NewFileIO> extends Closeable, ArmDisassembler, ValuePair, Serializable {
-
+    /**
+     * <p>获取指针大小，单位字节</p>
+     *
+     * @return {@code int} 字节数
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:02:03
+     */
     int getPointerSize();
 
+    /**
+     * <p>是否是64位ARM模拟器</p>
+     *
+     * @return {@code ture} 64位ARM
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:03:09
+     */
     boolean is64Bit();
+
+    /**
+     * <p>是否是32位ARM模拟器</p>
+     *
+     * @return {@code ture} 32位ARM
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:03:09
+     */
     boolean is32Bit();
 
+    /**
+     * <p>获取内存页面对齐大小，单位字节</p>
+     *
+     * @return {@code int} 字节数
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:07:32
+     */
     int getPageAlign();
 
     /**
-     * trace memory read
+     * <p>跟踪内存读取操作</p>
+     *
+     * @return {@link TraceMemoryHook} 内存追踪hook实例
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:10:08
      */
     TraceHook traceRead();
+
+    /**
+     * <p>跟踪内存读取操作</p>
+     *
+     * @param begin 起始内存地址
+     * @param end   内存结束地址
+     * @return {@link TraceMemoryHook} 内存追踪hook实例
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:10:08
+     */
     TraceHook traceRead(long begin, long end);
+
+    /**
+     * <p>跟踪内存读取操作</p>
+     *
+     * @param begin    起始内存地址
+     * @param end      内存结束地址
+     * @param listener 内存读取监听器
+     * @return {@link TraceMemoryHook} 内存追踪hook实例
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:10:08
+     */
     TraceHook traceRead(long begin, long end, TraceReadListener listener);
 
     /**
-     * trace memory write
+     * <p>跟踪内存写入操作</p>
+     *
+     * @return {@link TraceMemoryHook} 内存追踪hook实例
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:10:08
      */
     TraceHook traceWrite();
+
+    /**
+     * <p>跟踪内存写入操作</p>
+     *
+     * @param begin 起始内存地址
+     * @param end   内存结束地址
+     * @return {@link TraceMemoryHook} 内存追踪hook实例
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:10:08
+     */
     TraceHook traceWrite(long begin, long end);
+
+    /**
+     * <p>跟踪内存写入操作</p>
+     *
+     * @param begin    起始内存地址
+     * @param end      内存结束地址
+     * @param listener 内存写入监听器
+     * @return {@link TraceMemoryHook} 内存追踪hook实例
+     * @author pu_chaobo@163.com
+     * @date 2021-12-30 18:10:08
+     */
     TraceHook traceWrite(long begin, long end, TraceWriteListener listener);
 
+    /**
+     * <p>设置系统内存写入跟踪</p>
+     *
+     * @param begin    起始内存地址
+     * @param end      内存结束地址
+     * @param listener 系统内存写入监听器
+     * @author pu_chaobo@163.com
+     * @date 2022-01-04 14:38:15
+     */
     void setTraceSystemMemoryWrite(long begin, long end, TraceSystemMemoryWriteListener listener);
 
     /**
-     * trace instruction
-     * note: low performance
+     * <p>跟踪汇编指令</p>
+     *
+     * @return {@link AssemblyCodeDumper} 汇编指令Dump
+     * @author pu_chaobo@163.com
+     * @date 2022-01-05 10:49:08
      */
     TraceHook traceCode();
+
+    /**
+     * <p>跟踪汇编指令</p>
+     *
+     * @param begin 起始内存地址
+     * @param end   内存结束地址
+     * @return {@link AssemblyCodeDumper} 汇编指令Dump
+     * @author pu_chaobo@163.com
+     * @date 2022-01-05 10:49:08
+     */
     TraceHook traceCode(long begin, long end);
+
+    /**
+     * <p>跟踪汇编指令</p>
+     *
+     * @param begin    起始内存地址
+     * @param end      内存结束地址
+     * @param listener 系统内存写入监听器
+     * @return {@link AssemblyCodeDumper} 汇编指令Dump
+     * @author pu_chaobo@163.com
+     * @date 2022-01-05 10:49:08
+     */
     TraceHook traceCode(long begin, long end, TraceCodeListener listener);
 
     Number eFunc(long begin, Number... arguments);
@@ -69,6 +181,7 @@ public interface Emulator<T extends NewFileIO> extends Closeable, ArmDisassemble
 
     /**
      * emulate signal handler
+     *
      * @param sig signal number
      * @return <code>true</code> means called handler function.
      */
@@ -90,6 +203,7 @@ public interface Emulator<T extends NewFileIO> extends Closeable, ArmDisassemble
     void showRegs(int... regs);
 
     Module loadLibrary(File libraryFile);
+
     Module loadLibrary(File libraryFile, boolean forceCallInit);
 
     Memory getMemory();
@@ -111,12 +225,13 @@ public interface Emulator<T extends NewFileIO> extends Closeable, ArmDisassemble
     SyscallHandler<T> getSyscallHandler();
 
     Family getFamily();
+
     LibraryFile createURLibraryFile(URL url, String libName);
 
     Dlfcn getDlfcn();
 
     /**
-     * @param timeout  Duration to emulate the code (in microseconds). When this value is 0, we will emulate the code in infinite time, until the code is finished.
+     * @param timeout Duration to emulate the code (in microseconds). When this value is 0, we will emulate the code in infinite time, until the code is finished.
      */
     void setTimeout(long timeout);
 
@@ -125,6 +240,7 @@ public interface Emulator<T extends NewFileIO> extends Closeable, ArmDisassemble
     Unwinder getUnwinder();
 
     void pushContext(int off);
+
     int popContext();
 
     ThreadDispatcher getThreadDispatcher();

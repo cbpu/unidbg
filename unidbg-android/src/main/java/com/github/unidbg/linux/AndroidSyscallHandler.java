@@ -14,25 +14,19 @@ import com.github.unidbg.linux.file.PipedWriteFileIO;
 import com.github.unidbg.linux.signal.SigAction;
 import com.github.unidbg.linux.signal.SignalFunction;
 import com.github.unidbg.linux.signal.SignalTask;
-import com.github.unidbg.signal.UnixSigSet;
 import com.github.unidbg.linux.struct.StatFS;
 import com.github.unidbg.linux.struct.StatFS32;
 import com.github.unidbg.linux.struct.StatFS64;
+import com.github.unidbg.linux.thread.AbstractFutexWaiter;
 import com.github.unidbg.linux.thread.FutexIndefinitelyWaiter;
-import com.github.unidbg.linux.thread.FutexWaiter;
 import com.github.unidbg.linux.thread.MarshmallowThread;
 import com.github.unidbg.memory.Memory;
 import com.github.unidbg.pointer.UnidbgPointer;
 import com.github.unidbg.signal.SigSet;
 import com.github.unidbg.signal.SignalOps;
+import com.github.unidbg.signal.UnixSigSet;
 import com.github.unidbg.spi.SyscallHandler;
-import com.github.unidbg.thread.MainTask;
-import com.github.unidbg.thread.RunnableTask;
-import com.github.unidbg.thread.Task;
-import com.github.unidbg.thread.ThreadContextSwitchException;
-import com.github.unidbg.thread.ThreadDispatcher;
-import com.github.unidbg.thread.ThreadTask;
-import com.github.unidbg.thread.Waiter;
+import com.github.unidbg.thread.*;
 import com.github.unidbg.unix.IO;
 import com.github.unidbg.unix.UnixEmulator;
 import com.github.unidbg.unix.UnixSyscallHandler;
@@ -309,8 +303,8 @@ abstract class AndroidSyscallHandler extends UnixSyscallHandler<AndroidFileIO> i
                 int count = 0;
                 for (Task t : emulator.getThreadDispatcher().getTaskList()) {
                     Waiter waiter = t.getWaiter();
-                    if (waiter instanceof FutexWaiter) {
-                        if (((FutexWaiter) waiter).wakeUp(uaddr)) {
+                    if (waiter instanceof AbstractFutexWaiter) {
+                        if (((AbstractFutexWaiter) waiter).wakeUp(uaddr)) {
                             if (++count >= val) {
                                 break;
                             }
